@@ -1,0 +1,45 @@
+{
+  "name": "opencode-mimo-compose",
+  "version": "1.0.0",
+  "description": "MiMo 工作流技能包 — TDD、系统化调试、方案设计等 15 个技能 + 3 个 agent（mimo-compose / mimo-dev / mimo-review），适配 OpenCode",
+  "main": "index.cjs",
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "opencode-skill",
+    "compose",
+    "tdd",
+    "debugging",
+    "workflow",
+    "ai",
+    "agents",
+    "orchestration"
+  ],
+  "author": "moyu-by",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moyu-by/opencode-mimo-compose"
+  },
+  "bugs": {
+    "url": "https://github.com/moyu-by/opencode-mimo-compose/issues"
+  },
+  "homepage": "https://github.com/moyu-by/opencode-mimo-compose#readme",
+  "opencode": {
+    "type": "plugin"
+  },
+  "files": [
+    "skills/",
+    "agents/",
+    "install.cjs",
+    "index.cjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "postinstall": "node install.cjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
