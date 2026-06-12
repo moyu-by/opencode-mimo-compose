@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   cpSync,
+  writeFileSync,
 } from "fs";
 import { join, dirname } from "path";
 import { homedir } from "os";
@@ -14,8 +15,17 @@ const AGENTS_DIR = join(__dirname, "..", "agents");
 const SKILLS_SRC = join(__dirname, "..", "skills");
 const OC = join(homedir(), ".config", "opencode");
 const SKILLS_DST = join(OC, "skills");
+const VERSION_FILE = join(SKILLS_DST, ".mimo-compose-version");
 
-let _skillsEnsured = false;
+const PKG_VERSION = (() => {
+  try {
+    return JSON.parse(
+      readFileSync(join(__dirname, "..", "package.json"), "utf-8")
+    ).version;
+  } catch (_) {
+    return "0.0.0";
+  }
+})();
 
 function parseFrontmatter(content) {
   const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -67,20 +77,24 @@ function readdirRecursive(dir, base = "") {
   return entries;
 }
 
+// Only sync skills when version changes (not every startup)
 function ensureSkills() {
-  if (_skillsEnsured) return;
-  _skillsEnsured = true;
   if (!existsSync(SKILLS_SRC)) return;
+  try {
+    const installed = readFileSync(VERSION_FILE, "utf-8").trim();
+    if (installed === PKG_VERSION) return;
+  } catch (_) {}
+
   try {
     mkdirSync(SKILLS_DST, { recursive: true });
     for (const entry of readdirRecursive(SKILLS_SRC)) {
-      const src = join(SKILLS_SRC, entry);
       const dst = join(SKILLS_DST, entry);
       if (!existsSync(dst)) {
         mkdirSync(dirname(dst), { recursive: true });
-        cpSync(src, dst);
+        cpSync(join(SKILLS_SRC, entry), dst);
       }
     }
+    writeFileSync(VERSION_FILE, PKG_VERSION);
   } catch (_) {}
 }
 
