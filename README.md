@@ -37,7 +37,19 @@ opencode-mimo-compose/
 npm install -g opencode-mimo-compose
 ```
 
-`postinstall` 脚本会自动将 skills 和 agents 安装到 `~/.config/opencode/`。安装后在 OpenCode 中选择 **mimo-compose** 作为主 agent。
+然后把包名加入 `~/.config/opencode/opencode.json`：
+
+```json
+{
+  "plugin": ["opencode-mimo-compose"]
+}
+```
+
+之后每次启动 OpenCode，插件会**自动**完成两件事：
+1. 将 15 个 skill markdown 文件同步到 `~/.config/opencode/skills/`（首次，后续跳过已有文件）
+2. 注册 mimo-compose / mimo-dev / mimo-review 三个 agent
+
+安装后在 OpenCode 中选择 **mimo-compose** 即可使用。
 
 ### 方式二：直接复制
 
