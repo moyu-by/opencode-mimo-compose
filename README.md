@@ -31,13 +31,9 @@ opencode-mimo-compose/
 
 ## 安装
 
-### 方式一：npm 安装（推荐）
+### 方式一：opencode.json（推荐）
 
-```bash
-npm install -g opencode-mimo-compose
-```
-
-然后把包名加入 `~/.config/opencode/opencode.json`：
+在 `~/.config/opencode/opencode.json` 的 `plugin` 数组中添加包名即可，**不需要手动 npm install**：
 
 ```json
 {
@@ -45,18 +41,29 @@ npm install -g opencode-mimo-compose
 }
 ```
 
-之后每次启动 OpenCode，插件会**自动**完成两件事：
-1. 将 15 个 skill markdown 文件同步到 `~/.config/opencode/skills/`（首次，后续跳过已有文件）
-2. 注册 mimo-compose / mimo-dev / mimo-review 三个 agent
+OpenCode 会自动下载包。之后每次启动，插件自动：
+- 首次：将 15 个 skill markdown 文件同步到 `~/.config/opencode/skills/`
+- 每次：注册 `mimo-compose` / `mimo-dev` / `mimo-review` 三个 agent
 
-安装后在 OpenCode 中选择 **mimo-compose** 即可使用。
+在 OpenCode 中选择 **mimo-compose** 即可使用。
 
-### 方式二：直接复制
+### 方式二：npm 全局安装
+
+如果不用 opencode 插件系统，也可以手动：
+
+```bash
+npm install -g opencode-mimo-compose
+cat ~/.config/opencode/opencode.json  # 确保 plugin 数组包含 opencode-mimo-compose
+```
+
+### 方式三：直接复制文件
 
 ```bash
 cp -r skills/* ~/.config/opencode/skills/
 cp -r agents/* ~/.config/opencode/agents/
 ```
+
+纯文件方式，不依赖代码插件注册。
 
 ### 使用 MiMo Compose
 
