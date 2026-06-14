@@ -1,6 +1,6 @@
 {
   "name": "opencode-mimo-compose",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "MiMo 工作流技能包 — TDD、系统化调试、方案设计等 15 个技能 + 3 个 agent（mimo-compose / mimo-dev / mimo-review），适配 OpenCode",
   "type": "module",
   "main": "src/index.js",

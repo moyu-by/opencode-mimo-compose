@@ -12,20 +12,23 @@ Start by understanding the current project context, then ask questions one at a 
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
 
-**Autonomous override:** When no user is available to approve, this HARD-GATE does not apply: skip design presentation and approval, proceed directly to implementation, treating every approval gate as auto-approved.
+**强制执行规则：**
+1. **用户可用时**：必须等待用户明确批准设计后才能继续
+2. **用户不可用时**：必须输出 `[CHECKPOINT] 设计阶段：auto-approved` 并记录设计决策，然后才能继续
+3. **无一例外**：任何创建性工作都必须经过设计阶段，不允许跳过
 </HARD-GATE>
 
 ## Anti-Pattern: "This Is Too Simple To Need A Design"
 
 Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
 
-**Autonomous override:** When no user is available, skip this anti-pattern guidance — proceed directly to exploring context and implementing; do not present a design for approval.
+**强制执行规则：** 即使是"简单"任务也必须经过设计阶段。如果认为任务简单，设计可以简短（几句话），但不能跳过。
 
 ## Checklist
 
 You MUST create a task for each of these items and complete them in order:
 
-**Autonomous mode (no user available):** Skip steps 2–8. Only do: explore project context (step 1) → implement directly (invoke SKILL:write-plan or SKILL:execute-plan). Do NOT present a design, ask questions, write a spec, or wait for approval.
+**强制执行：** 所有步骤都必须执行，不允许跳过。如果用户不可用，步骤5和8使用auto-approved机制。
 
 1. **Explore project context** — check files, docs, recent commits
 2. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
@@ -149,7 +152,7 @@ After spec self-review passes, use `SKILL:ask-user`:
   - label: `Approved`, description: `Proceed to SKILL:write-plan`
   - label: `Changes needed`, description: `I have revisions`
 
-If no user is available, treat as approved and invoke SKILL:write-plan.
+If no user is available, output `[CHECKPOINT] Spec review: auto-approved` and invoke SKILL:write-plan.
 
 If "Changes needed" or custom feedback, apply changes and re-run spec review. Only proceed on approval.
 
@@ -175,6 +178,51 @@ Rules:
 - **The ID is stable.** If a heading is later reworded, keep its existing ID and do NOT renumber the other sections. Downstream `covers:` references and review verdicts depend on these IDs not drifting — renumbering would silently break every reference that points at them.
 
 These anchors are the index the plan and reviewers use to trace each task and each review verdict back to the exact spec section it serves.
+
+## Enforcement: When to Use (and When NOT to)
+
+**触发条件（以下任意一条）：**
+- 新功能、新组件、新技能的创建
+- 涉及架构决策或多方案权衡
+- 改动涉及 4+ 文件或跨模块影响
+- 编排器已判定为复杂任务
+
+**不触发（快速通道）：**
+- 简单 bug 修复、配置调整、单文件小改动
+- 编排器已判定为简单任务
+- 用户明确要求快速模式
+
+---
+
+### 检查点输出（仅复杂任务）
+
+1. **设计阶段开始时**
+   ```
+   [CHECKPOINT] 设计阶段：brainstorm
+   任务类型：{新功能/组件/行为变更/技能创建}
+   ```
+
+2. **用户批准设计后**
+   ```
+   [CHECKPOINT] 设计批准：user-approved / auto-approved
+   ```
+
+3. **进入实现阶段前**
+   ```
+   [CHECKPOINT] 进入实现：SKILL:write-plan
+   ```
+
+### 违规检测（仅当该技能被触发时）
+
+**以下行为视为流程违规：**
+- 复杂任务中没有输出检查点就开始实现
+- 跳过设计阶段直接写代码
+- 没有等待用户批准就继续（用户可用时）
+
+**违规处理：**
+- 发现违规时，必须立即停止
+- 回退到设计阶段
+- 重新执行完整流程
 
 ## Key Principles
 
