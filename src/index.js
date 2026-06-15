@@ -5,6 +5,7 @@ import {
   mkdirSync,
   cpSync,
   writeFileSync,
+  rmSync,
 } from "fs";
 import { join, dirname } from "path";
 import { homedir } from "os";
@@ -15,7 +16,7 @@ const AGENTS_DIR = join(__dirname, "..", "agents");
 const SKILLS_SRC = join(__dirname, "..", "skills");
 const OC = join(homedir(), ".config", "opencode");
 const SKILLS_DST = join(OC, "skills");
-const VERSION_FILE = join(SKILLS_DST, ".mimo-compose-version");
+const SETUP_MARKER = join(OC, ".opencode-mimo-compose-setup");
 
 const PKG_VERSION = (() => {
   try {
@@ -77,30 +78,38 @@ function readdirRecursive(dir, base = "") {
   return entries;
 }
 
-// Only sync skills when version changes (not every startup)
-function ensureSkills() {
+// First-time setup or version upgrade: sync skills + mark setup
+function runSetup() {
   if (!existsSync(SKILLS_SRC)) return;
-  try {
-    const installed = readFileSync(VERSION_FILE, "utf-8").trim();
-    if (installed === PKG_VERSION) return;
-  } catch (_) {}
-
   try {
     mkdirSync(SKILLS_DST, { recursive: true });
     for (const entry of readdirRecursive(SKILLS_SRC)) {
+      const src = join(SKILLS_SRC, entry);
       const dst = join(SKILLS_DST, entry);
-      if (!existsSync(dst)) {
-        mkdirSync(dirname(dst), { recursive: true });
-        cpSync(join(SKILLS_SRC, entry), dst);
-      }
+      mkdirSync(dirname(dst), { recursive: true });
+      cpSync(src, dst);
     }
-    writeFileSync(VERSION_FILE, PKG_VERSION);
+    writeFileSync(SETUP_MARKER, PKG_VERSION);
   } catch (_) {}
+}
+
+function needsSetup() {
+  // No marker → first install
+  if (!existsSync(SETUP_MARKER)) return true;
+  // Marker exists but version mismatch → upgrade
+  try {
+    return readFileSync(SETUP_MARKER, "utf-8").trim() !== PKG_VERSION;
+  } catch (_) {
+    return true;
+  }
 }
 
 /** @type {import("@opencode-ai/plugin").Plugin} */
 export async function server(input, _options) {
-  ensureSkills();
+  // Only run setup on first install or version upgrade (not every startup)
+  if (needsSetup()) {
+    runSetup();
+  }
   const agents = loadAgents();
 
   return {
