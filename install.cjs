@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-const { existsSync, mkdirSync, cpSync, readdirSync, statSync } = require("fs");
+const { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync } = require("fs");
 const { join, dirname } = require("path");
 const { homedir } = require("os");
 
@@ -10,6 +10,7 @@ const SKILLS_SRC = join(__dirname, "skills");
 const AGENTS_SRC = join(__dirname, "agents");
 const SKILLS_DST = join(OC, "skills");
 const AGENTS_DST = join(OC, "agents");
+const SETUP_MARKER = join(OC, ".opencode-mimo-compose-setup");
 
 function readdirRecursive(dir, base) {
   base = base || "";
@@ -48,6 +49,14 @@ function installDir(src, dst, label) {
   console.log("  ✓ " + label + ": " + added + " 个新增，跳过 " + skipped + " 个（已存在）");
 }
 
+function getPkgVersion() {
+  try {
+    return require("./package.json").version;
+  } catch (_) {
+    return "0.0.0";
+  }
+}
+
 console.log("\n📦 opencode-mimo-compose 安装中...\n");
 console.log("→ 目标: " + OC);
 
@@ -59,4 +68,8 @@ if (!existsSync(OC)) {
 installDir(SKILLS_SRC, SKILLS_DST, "skills");
 installDir(AGENTS_SRC, AGENTS_DST, "agents");
 
-console.log("\n✅ 完毕！在 OpenCode 中选择 mimo-compose 即可使用\n");
+// Write setup marker so plugin skips sync on next OpenCode startup
+writeFileSync(SETUP_MARKER, getPkgVersion());
+console.log("  ✓ 写入安装标记\n");
+
+console.log("✅ 完毕！在 OpenCode 中选择 mimo-compose 即可使用\n");
